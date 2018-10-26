@@ -1,6 +1,11 @@
 <template>
-    <div :class="['stack', count]" @click="$emit('tap')">
-        <Card v-if="count != 'zero'" :card="top" :facedown="facedown"></Card>
+    <div :class="['stack', count, open ? 'open' : 'closed']" @click="$emit('tap')">
+      <template v-if="open">
+        <Card v-for="(card, i) in reverse" :key="cardStr(card)" :card="card" :facedown="facedown || facedowns > i" :style="{top: 15 * i + 'px'}" :class="{top: top == card}"></Card>
+      </template>
+      <template v-else>
+        <Card v-if="count != 'zero'" :card="top" :facedown="facedown" class="top"></Card>
+      </template>
     </div>
 </template>
 
@@ -8,22 +13,11 @@
 import { Prop, Component, Vue } from 'vue-property-decorator';
 import Card from '@/components/Card';
 import { Pl } from '@/Utils';
+import { cardStr } from '@/Card';
 
 @Component({
   components: {
     Card
-  },
-  computed: {
-    top: function(): Card {
-      return this.cards[0];
-    },
-    count: function(): Pl {
-      return this.cards.length > 1
-        ? 'many'
-        : this.cards.length
-          ? 'one'
-          : 'zero';
-    }
   }
 })
 export default class Stack extends Vue {
@@ -31,32 +25,26 @@ export default class Stack extends Vue {
   readonly cards: Card[];
   @Prop(Boolean)
   readonly facedown: boolean;
+  @Prop(Boolean)
+  readonly open: boolean;
+  @Prop({ type: Number, default: 0 })
+  readonly facedowns: number;
 
-  // public peek(): Card | undefined {
-  //   return this.cards[0];
-  // }
+  get reverse(): Card[] {
+    const cards = [...this.cards];
+    cards.reverse();
+    return cards;
+  }
 
-  // public move(n: number, dest: Stack) {
-  //   for (const card in this.cards.splice(0, n)) {
-  //     dest.cards.unshift(card);
-  //   }
-  // }
+  get top(): Card {
+    return this.cards[0];
+  }
 
-  // public take(n: number): Card[] {
-  //   return this.cards.splice(0, n);
-  // }
+  get count(): Pl {
+    return this.cards.length > 1 ? 'many' : this.cards.length ? 'one' : 'zero';
+  }
 
-  // public add(card: Card) {
-  //   this.cards.unshift(card);
-  // }
-
-  // public count(): Pl {
-  //   return this.cards.length > 1 ? 'many' : this.cards.length ? 'one' : 'zero';
-  // }
-
-  // public shuffle(): void {
-  //   this.cards.sort((a, b) => Math.random() - 0.5);
-  // }
+  cardStr = cardStr;
 }
 </script>
 
@@ -64,19 +52,23 @@ export default class Stack extends Vue {
 .stack {
   position: relative;
   display: inline-block;
-  border: thin dotted #333;
   width: 50px;
   height: 70px;
-  border-radius: 5px;
   margin-right: 15px;
   margin-bottom: 15px;
+  border-radius: 5px;
+  border: thin solid transparent;
 }
 
-.stack.many {
-  border-style: solid;
+.stack.closed.many {
+  border: thin solid #333;
 }
 
-.stack.selected .card {
+.stack.zero {
+  border-style: thin dotted #333;
+}
+
+.stack.selected .card.top {
   background: #eee;
 }
 
@@ -84,7 +76,7 @@ export default class Stack extends Vue {
   position: absolute;
 }
 
-.stack.many .card {
+.stack.many.closed .card {
   top: 5px;
   left: 5px;
 }
