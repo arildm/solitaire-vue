@@ -1,6 +1,8 @@
 <template>
     <div :class="['card', 'suit-' + card.suit, 'rank-' + card.rank, {facedown}]" @click="$emit('tap')">
-        <span class="title" v-html="html"></span>
+        <span class="title up" v-html="html"></span>
+        <span class="rank-sign">{{suit}}</span>
+        <span class="title down" v-html="html"></span>
     </div>
 </template>
     
@@ -18,6 +20,10 @@ export default class Card extends Vue {
 
   public get str(): string {
     return cardStr(this.card);
+  }
+
+  public get suit(): string {
+    return suitStr(this.card.suit);
   }
 
   public get html(): string {
@@ -38,10 +44,13 @@ export default class Card extends Vue {
   padding: 10px;
   box-sizing: border-box;
   background: white;
+  text-align: center;
+  position: relative;
 }
 
 .card.facedown {
-  font-size: 0;
+  text-indent: -1000px;
+  background-color: #978;
 }
 
 .suit-hearts,
@@ -50,7 +59,22 @@ export default class Card extends Vue {
 }
 
 .card .title {
-  font-size: 20px;
+  font-size: 12px;
+  position: absolute;
+}
+
+.card .title.up {
+  top: 0;
+  left: 0;
+}
+
+.card .title.down {
+  bottom: 0;
+  right: 0;
+}
+
+.card .rank-sign {
+  font-size: 30px;
 }
 
 .suit {

@@ -1,7 +1,7 @@
 <template>
   <div id="table">
     <div id="chute">
-      <Stack :cards="stacks.chute" @tap="tapChute" face-down></Stack>
+      <Stack :cards="stacks.chute" @tap="tapChute" facedown></Stack>
     </div>
     <div id="grabs">
       <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: drag == 'grabs'}"></Stack>
@@ -35,7 +35,7 @@ import { shuffle, range, objFromKeys, begins } from '@/Utils';
 })
 export default class Home extends Vue {
   readonly laneIds: string[] = range(1, 7).map(i => 'lane' + i);
-  readonly goalIds: string[] = ['h', 't', 'c', 's'].map(s => 'goal' + s);
+  readonly goalIds: string[] = range(1, 4).map(i => 'goal' + i);
 
   public stacks: Record<string, Card[]> = {
     chute: standardDeck(),
@@ -45,6 +45,7 @@ export default class Home extends Vue {
   };
 
   drag: string | null = null;
+  goalMap: Record<Suit, number> = objFromKeys(suits, () => 0);
 
   tapChute() {
     this.move('chute', 'grabs');
@@ -59,8 +60,9 @@ export default class Home extends Vue {
     } else {
       if (this.canMoveTo(stack, this.stacks[this.drag][0], this.drag)) {
         this.move(this.drag, stack);
-        this.drag = null;
       }
+      this.drag = null;
+      console.log(this.drag);
     }
   }
 
@@ -68,6 +70,10 @@ export default class Home extends Vue {
     console.log(from, to, n);
     for (const card of this.stacks[from].splice(0, n)) {
       this.stacks[to].unshift(card);
+      if (begins(to, 'goal')) {
+        this.goalMap[card.suit] = parseInt(to.substr(-1));
+        console.log(this.goalMap);
+      }
     }
   }
 
@@ -77,10 +83,14 @@ export default class Home extends Vue {
 
   canMoveTo(dest: string, card: Card, src: string) {
     return (
+      // Empty goal stack.
+      (begins(dest, 'goal') &&
+        this.goalMap[card.suit] == 0 &&
+        card.rank == 1) ||
       // Goal stack: same suit and rank + 1.
-      (dest === 'goal' + card.suit.substr(0, 1) &&
+      (dest === 'goal' + this.goalMap[card.suit] &&
         this.stacks[dest].length + 1 == card.rank) ||
-      // Lane stack: empty, or different color and
+      // Lane stack: empty, or different color and rank - 1
       (begins(dest, 'lane') &&
         (this.stacks[dest].length == 0 ||
           (color(card.suit) != color(this.stacks[dest][0].suit) &&

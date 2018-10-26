@@ -1,4 +1,5 @@
 import * as U from '@/Utils'
+import { range } from './Utils';
 
 export interface Card {
   readonly suit: Suit
@@ -8,7 +9,7 @@ export interface Card {
 export type Suit = 'hearts' | 'tiles' | 'clubs' | 'spades'
 export type Color = 'black' | 'red'
 export const suits: Suit[] = ['hearts', 'tiles', 'clubs', 'spades']
-export const ranks: number[] = Array.from(Array(14).keys()).slice(1)
+export const ranks: number[] = range(1, 13)
 
 const rankSpecial: Record<number, string> = {
   1: 'A',

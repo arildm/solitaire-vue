@@ -22,8 +22,8 @@ export function range(from: number, to?: number): number[] {
   return Array.from(Array(to - from + 1).keys()).map((i) => i + from)
 }
 
-export function objFromKeys<A>(keys: string[], init: (key: string) => A): Record<string, A> {
-  const obj: Record<string, A> = {}
+export function objFromKeys<A, K extends string>(keys: K[], init: (key: K) => A): Record<K, A> {
+  const obj = {} as Record<K, A>
   keys.forEach((key) => obj[key] = init(key))
   return obj
 }
