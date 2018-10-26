@@ -1,5 +1,5 @@
 <template>
-    <div :class="['stack', count, open ? 'open' : 'closed']" @click="$emit('tap')">
+    <div :class="['stack', count, open ? 'open' : 'closed', {facedown}]" @click="$emit('tap')">
       <template v-if="open">
         <Card v-for="(card, i) in reverse" :key="cardStr(card)" :card="card" :facedown="facedown || facedowns > i" :style="{top: 15 * i + 'px'}" :class="{top: top == card}"></Card>
       </template>
@@ -10,42 +10,41 @@
 </template>
 
 <script lang="ts">
-import { Prop, Component, Vue } from 'vue-property-decorator';
+import Vue from 'vue';
 import Card from '@/components/Card';
-import { Pl } from '@/Utils';
 import { cardStr } from '@/Card';
 
-@Component({
+export default Vue.component('stack', {
   components: {
     Card
+  },
+  props: {
+    cards: { type: Array, default: () => [] },
+    facedown: Boolean,
+    open: Boolean,
+    facedowns: { type: Number, default: 0 }
+  },
+  computed: {
+    reverse: function() {
+      const cards = [...this.cards];
+      cards.reverse();
+      return cards;
+    },
+    top: function() {
+      return this.cards[0];
+    },
+    count: function() {
+      return this.cards.length > 1
+        ? 'many'
+        : this.cards.length
+          ? 'one'
+          : 'zero';
+    }
+  },
+  methods: {
+    cardStr
   }
-})
-export default class Stack extends Vue {
-  @Prop({ type: Array, default: () => [] })
-  readonly cards: Card[];
-  @Prop(Boolean)
-  readonly facedown: boolean;
-  @Prop(Boolean)
-  readonly open: boolean;
-  @Prop({ type: Number, default: 0 })
-  readonly facedowns: number;
-
-  get reverse(): Card[] {
-    const cards = [...this.cards];
-    cards.reverse();
-    return cards;
-  }
-
-  get top(): Card {
-    return this.cards[0];
-  }
-
-  get count(): Pl {
-    return this.cards.length > 1 ? 'many' : this.cards.length ? 'one' : 'zero';
-  }
-
-  cardStr = cardStr;
-}
+});
 </script>
 
 <style>
@@ -60,12 +59,16 @@ export default class Stack extends Vue {
   border: thin solid transparent;
 }
 
-.stack.closed.many {
+.stack.many.closed {
   border: thin solid #333;
 }
 
+.stack.facedown.many {
+  background-color: #978;
+}
+
 .stack.zero {
-  border-style: thin dotted #333;
+  border: thin dotted #333;
 }
 
 .stack.selected .card.top {

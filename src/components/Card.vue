@@ -7,32 +7,29 @@
 </template>
     
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import Vue from 'vue';
 import { Card as MCard, cardStr, suitStr, rankStr } from '@/Card';
 
-@Component
-export default class Card extends Vue {
-  @Prop()
-  readonly card!: MCard;
-
-  @Prop()
-  readonly facedown: boolean;
-
-  public get str(): string {
-    return cardStr(this.card);
+export default Vue.component('card', {
+  props: {
+    card: { required: true },
+    facedown: Boolean
+  },
+  computed: {
+    str: function() {
+      return cardStr(this.card);
+    },
+    suit: function() {
+      return suitStr(this.card.suit);
+    },
+    html: function() {
+      return (
+        `<span class="suit">${suitStr(this.card.suit)}</span>` +
+        `<span class="rank">${rankStr(this.card.rank)}</span>`
+      );
+    }
   }
-
-  public get suit(): string {
-    return suitStr(this.card.suit);
-  }
-
-  public get html(): string {
-    return (
-      `<span class="suit">${suitStr(this.card.suit)}</span>` +
-      `<span class="rank">${rankStr(this.card.rank)}</span>`
-    );
-  }
-}
+});
 </script>
 
 <style>

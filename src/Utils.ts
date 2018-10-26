@@ -35,3 +35,8 @@ export function begins(full: string, search: string): boolean {
 export function dget<A>(as: A[], i: number, def: A): A {
   return as[i] !== undefined ? as[i] : def
 }
+
+export function tailnum(s: string): number | null {
+  const num = s.match(/[0-9]*$/)
+  return num ? parseInt(num[0]) : null
+}
