@@ -1,5 +1,5 @@
 <template>
-    <div :class="['card', 'suit-' + card.suit, 'rank-' + card.rank]">
+    <div :class="['card', 'suit-' + card.suit, 'rank-' + card.rank, {facedown}]" @click="$emit('tap')">
         <span class="title" v-html="html"></span>
     </div>
 </template>
@@ -12,6 +12,9 @@ import { Card as MCard, cardStr, suitStr, rankStr } from '@/Card';
 export default class Card extends Vue {
   @Prop()
   readonly card!: MCard;
+
+  @Prop()
+  readonly facedown: boolean;
 
   public get str(): string {
     return cardStr(this.card);
@@ -28,11 +31,17 @@ export default class Card extends Vue {
 
 <style>
 .card {
-  width: 5em;
-  height: 7em;
+  width: 50px;
+  height: 70px;
   border: thin solid #333;
-  border-radius: 0.5em;
-  padding: 1em;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  background: white;
+}
+
+.card.facedown {
+  font-size: 0;
 }
 
 .suit-hearts,
@@ -41,7 +50,7 @@ export default class Card extends Vue {
 }
 
 .card .title {
-  font-size: 2.5em;
+  font-size: 20px;
 }
 
 .suit {

@@ -6,6 +6,7 @@ export interface Card {
 }
 
 export type Suit = 'hearts' | 'tiles' | 'clubs' | 'spades'
+export type Color = 'black' | 'red'
 export const suits: Suit[] = ['hearts', 'tiles', 'clubs', 'spades']
 export const ranks: number[] = Array.from(Array(14).keys()).slice(1)
 
@@ -31,7 +32,13 @@ export function cardStr(card: Card): string {
   return suitStr(card.suit) + rankStr(card.rank)
 }
 
-export const standardDeck: Card[] = U.product(
-  suits,
-  ranks,
-).map(({ a, b }) => ({ suit: a as Suit, rank: b }))
+export function color(suit: Suit): Color {
+  return ['hearts', 'tiles'].includes(suit) ? 'red' : 'black'
+}
+
+export function standardDeck(): Card[] {
+  return U.product(
+    suits,
+    ranks,
+  ).map(({ a, b }) => ({ suit: a as Suit, rank: b }))
+}
