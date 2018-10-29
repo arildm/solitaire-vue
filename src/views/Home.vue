@@ -4,10 +4,10 @@
       <Stack :cards="stacks.chute" @tap="tapChute" facedown></Stack>
     </div>
     <div id="grabs">
-      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: drag == 'grabs'}"></Stack>
+      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: drag == 'grabs'}" @mydrag="handleDrag($event, 'grabs')" draggable></Stack>
     </div>
     <div id="goals">
-      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" @dragover.prevent @drop="select(id)"></Stack>
+      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" @drop="select(id)"></Stack>
     </div>
     <div id="lanes">
       <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" :facedowns="laneFacedowns[id]" @mydrag="handleDrag($event, id)" @drop="select(id)"></Lane>

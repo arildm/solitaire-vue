@@ -1,13 +1,14 @@
 <template>
     <div :class="['stack', count, {facedown}]" @click="$emit('tap')" @dragover.prevent @drop="$emit('drop')">
       <Card v-if="count != 'zero'" :card="top" :facedown="facedown" class="top"
+        :draggable="draggable"
         @mydrag="$emit('mydrag', {card: $event, i: 0})"></Card>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import Card from '@/components/Card';
+import Card from '@/components/Card.vue';
 import { cardStr } from '@/Card';
 
 export default Vue.component('stack', {
@@ -17,10 +18,7 @@ export default Vue.component('stack', {
   props: {
     cards: { type: Array, default: () => [] },
     facedown: Boolean,
-    dragtype: {
-      type: String,
-      validator: (s: string) => ['top', 'faceups'].includes(s)
-    }
+    draggable: {Boolean },
   },
   computed: {
     top: function() {
