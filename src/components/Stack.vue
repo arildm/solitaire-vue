@@ -1,11 +1,8 @@
 <template>
-    <div :class="['stack', count, open ? 'open' : 'closed', {facedown}]" @click="$emit('tap')">
-      <template v-if="open">
-        <Card v-for="(card, i) in reverse" :key="cardStr(card)" :card="card" :facedown="facedown || facedowns > i" :style="{top: 15 * i + 'px'}" :class="{top: top == card}"></Card>
-      </template>
-      <template v-else>
-        <Card v-if="count != 'zero'" :card="top" :facedown="facedown" class="top"></Card>
-      </template>
+    <div :class="['stack', count, {facedown}]" @click="$emit('tap')">
+      <Card v-if="count != 'zero'" :card="top" :facedown="facedown" class="top"
+        @drag="$emit('drag', top, 0)"
+        :draggable="dragtype === 'top'"></Card>
     </div>
 </template>
 
@@ -21,15 +18,12 @@ export default Vue.component('stack', {
   props: {
     cards: { type: Array, default: () => [] },
     facedown: Boolean,
-    open: Boolean,
-    facedowns: { type: Number, default: 0 }
+    dragtype: {
+      type: String,
+      validator: (s: string) => ['top', 'faceups'].includes(s)
+    }
   },
   computed: {
-    reverse: function() {
-      const cards = [...this.cards];
-      cards.reverse();
-      return cards;
-    },
     top: function() {
       return this.cards[0];
     },
@@ -42,7 +36,15 @@ export default Vue.component('stack', {
     }
   },
   methods: {
-    cardStr
+    cardStr,
+    isDraggable: function(card: Card, i: number): boolean {
+      if (this.dragtype === 'top') {
+        return i === 0;
+      } else if (this.dragtype === 'faceups') {
+        return this.facedowns <= i;
+      }
+      return false;
+    }
   }
 });
 </script>
@@ -59,7 +61,7 @@ export default Vue.component('stack', {
   border: thin solid transparent;
 }
 
-.stack.many.closed {
+.stack.many {
   border: thin solid #333;
 }
 
@@ -79,7 +81,7 @@ export default Vue.component('stack', {
   position: absolute;
 }
 
-.stack.many.closed .card {
+.stack.many .card {
   top: 5px;
   left: 5px;
 }

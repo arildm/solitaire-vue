@@ -4,20 +4,21 @@
       <Stack :cards="stacks.chute" @tap="tapChute" facedown></Stack>
     </div>
     <div id="grabs">
-      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: drag == 'grabs'}"></Stack>
+      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: drag == 'grabs'}" dragtype="top"></Stack>
     </div>
     <div id="goals">
-      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}"></Stack>
+      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" @dragover.prevent @dragenter.prevent @drop="select(id)"></Stack>
     </div>
     <div id="lanes">
-      <Stack v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" open :facedowns="laneFacedowns[id]"></Stack>
+      <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" :facedowns="laneFacedowns[id]" dragtype="faceups" @mydrag="select(id)"></Lane>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import Stack from '@/components/Stack';
+import Stack from '@/components/Stack.vue';
+import Lane from '@/components/Lane.vue';
 import { standardDeck, Card, Suit, suits, color } from '@/Card';
 import { shuffle, range, objFromKeys, begins, tailnum } from '@/Utils';
 
@@ -26,7 +27,8 @@ const goalIds = range(1, 4).map(i => 'goal' + i);
 
 export default Vue.component('home', {
   components: {
-    Stack
+    Stack,
+    Lane
   },
   data: function() {
     const deck = shuffle(standardDeck());
@@ -36,8 +38,8 @@ export default Vue.component('home', {
         grabs: [],
         ...objFromKeys(laneIds, id => deck.splice(0, tailnum(id)!)),
         ...objFromKeys(goalIds, () => [])
-      },
-      drag: null,
+      } as Record<string, Card[]>,
+      drag: null as string | null,
       goalMap: objFromKeys(suits, () => 0) as Record<Suit, number>,
       laneFacedowns: objFromKeys(laneIds, id => tailnum(id)! - 1)
     };
@@ -62,6 +64,7 @@ export default Vue.component('home', {
       }
     },
     select: function(stack: string): void {
+      console.log('select', stack);
       if (!this.drag) {
         // Flipping the top card in a lane.
         if (
@@ -101,6 +104,15 @@ export default Vue.component('home', {
             (color(card.suit) != color(this.stacks[dest][0].suit) &&
               this.stacks[dest][0].rank == card.rank + 1)))
       );
+    },
+    dragover: function(ev) {
+      console.log('dragover');
+      ev.preventDefault();
+    },
+    drop: function(ev, id) {
+      console.log('drop');
+      ev.preventDefault();
+      this.select(id);
     }
   }
 });
