@@ -1,8 +1,7 @@
 <template>
-    <div :class="['stack', count, {facedown}]" @click="$emit('tap')">
+    <div :class="['stack', count, {facedown}]" @click="$emit('tap')" @dragover.prevent @drop="$emit('drop')">
       <Card v-if="count != 'zero'" :card="top" :facedown="facedown" class="top"
-        @drag="$emit('drag', top, 0)"
-        :draggable="dragtype === 'top'"></Card>
+        @mydrag="$emit('mydrag', {card: $event, i: 0})"></Card>
     </div>
 </template>
 
@@ -37,13 +36,8 @@ export default Vue.component('stack', {
   },
   methods: {
     cardStr,
-    isDraggable: function(card: Card, i: number): boolean {
-      if (this.dragtype === 'top') {
-        return i === 0;
-      } else if (this.dragtype === 'faceups') {
-        return this.facedowns <= i;
-      }
-      return false;
+    handleDrop: function() {
+      console.log(arguments)
     }
   }
 });

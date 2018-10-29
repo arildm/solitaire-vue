@@ -4,13 +4,13 @@
       <Stack :cards="stacks.chute" @tap="tapChute" facedown></Stack>
     </div>
     <div id="grabs">
-      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: drag == 'grabs'}" dragtype="top"></Stack>
+      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: drag == 'grabs'}"></Stack>
     </div>
     <div id="goals">
-      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" @dragover.prevent @dragenter.prevent @drop="select(id)"></Stack>
+      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" @dragover.prevent @drop="select(id)"></Stack>
     </div>
     <div id="lanes">
-      <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" :facedowns="laneFacedowns[id]" dragtype="faceups" @mydrag="select(id)"></Lane>
+      <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" :facedowns="laneFacedowns[id]" @mydrag="handleDrag($event, id)"></Lane>
     </div>
   </div>
 </template>
@@ -105,14 +105,12 @@ export default Vue.component('home', {
               this.stacks[dest][0].rank == card.rank + 1)))
       );
     },
-    dragover: function(ev) {
-      console.log('dragover');
-      ev.preventDefault();
+    handleDrag: function(cardi: { card: Card; i: number }, stack: string) {
+      this.drag = null;
+      this.select(stack);
     },
-    drop: function(ev, id) {
-      console.log('drop');
-      ev.preventDefault();
-      this.select(id);
+    drop: function() {
+      console.log('drop', arguments);
     }
   }
 });

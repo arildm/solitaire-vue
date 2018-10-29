@@ -1,5 +1,5 @@
 <template>
-    <div :class="['card', 'suit-' + card.suit, 'rank-' + card.rank, {facedown}]" @click="$emit('tap')" :draggable="draggable" @dragstart="$emit('mydrag', card)">
+    <div :class="['card', 'suit-' + card.suit, 'rank-' + card.rank, {facedown}]" @dragstart="$emit('mydrag', card)">
         <span class="title up" v-html="html"></span>
         <span class="rank-sign">{{suit}}</span>
         <span class="title down" v-html="html"></span>
@@ -13,7 +13,6 @@ import { Card as MCard, cardStr, suitStr, rankStr } from '@/Card';
 export default Vue.component('card', {
   props: {
     card: { required: true },
-    draggable: Boolean,
     facedown: Boolean
   },
   computed: {
