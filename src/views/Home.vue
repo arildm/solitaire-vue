@@ -10,7 +10,7 @@
       <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" @dragover.prevent @drop="select(id)"></Stack>
     </div>
     <div id="lanes">
-      <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" :facedowns="laneFacedowns[id]" @mydrag="handleDrag($event, id)"></Lane>
+      <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" :facedowns="laneFacedowns[id]" @mydrag="handleDrag($event, id)" @drop="select(id)"></Lane>
     </div>
   </div>
 </template>
@@ -64,7 +64,6 @@ export default Vue.component('home', {
       }
     },
     select: function(stack: string): void {
-      console.log('select', stack);
       if (!this.drag) {
         // Flipping the top card in a lane.
         if (
@@ -109,9 +108,6 @@ export default Vue.component('home', {
       this.drag = null;
       this.select(stack);
     },
-    drop: function() {
-      console.log('drop', arguments);
-    }
   }
 });
 </script>

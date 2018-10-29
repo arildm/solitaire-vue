@@ -1,5 +1,6 @@
 <template>
-    <div :class="['lane', count]" @click="$emit('tap')">
+    <div :class="['lane', count]" @click="$emit('tap')"
+        @dragover.prevent @drop="$emit('drop')">
     <Card v-for="(card, i) in reverse" :key="cardStr(card)" :card="card"
         :facedown="facedowns > i"
         :style="{top: 15 * i + 'px'}"
