@@ -6,7 +6,7 @@
         :style="{top: 15 * i + 'px'}"
         :class="{top: top == card}"
         :draggable="facedowns <= i"
-        @mydrag="$emit('mydrag', {card: $event, i})"></Card>
+        @mydrag="$emit('mydrag', {card: $event, i: cards.length - i - 1})"></Card>
     </div>
 </template>
 

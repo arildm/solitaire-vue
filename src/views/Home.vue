@@ -4,13 +4,13 @@
       <Stack :cards="stacks.chute" @tap="tapChute" facedown></Stack>
     </div>
     <div id="grabs">
-      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: drag == 'grabs'}" @mydrag="handleDrag($event, 'grabs')" draggable></Stack>
+      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: dragged && dragged.stack == 'grabs'}" @mydrag="drag($event, 'grabs')" draggable></Stack>
     </div>
     <div id="goals">
-      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" @drop="select(id)"></Stack>
+      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: dragged && dragged.stack == id}" @drop="select(id)"></Stack>
     </div>
     <div id="lanes">
-      <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: drag == id}" :facedowns="laneFacedowns[id]" @mydrag="handleDrag($event, id)" @drop="select(id)"></Lane>
+      <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: dragged && dragged.stack == id}" :facedowns="laneFacedowns[id]" @mydrag="drag($event, id)" @drop="select(id)"></Lane>
     </div>
   </div>
 </template>
@@ -24,6 +24,8 @@ import { shuffle, range, objFromKeys, begins, tailnum } from '@/Utils';
 
 const laneIds = range(1, 7).map(i => 'lane' + i);
 const goalIds = range(1, 4).map(i => 'goal' + i);
+
+type StackPos = {stack: string, i: number}
 
 export default Vue.component('home', {
   components: {
@@ -39,7 +41,7 @@ export default Vue.component('home', {
         ...objFromKeys(laneIds, id => deck.splice(0, tailnum(id)!)),
         ...objFromKeys(goalIds, () => [])
       } as Record<string, Card[]>,
-      drag: null as string | null,
+      dragged: null as StackPos | null,
       goalMap: objFromKeys(suits, () => 0) as Record<Suit, number>,
       laneFacedowns: objFromKeys(laneIds, id => tailnum(id)! - 1)
     };
@@ -52,10 +54,11 @@ export default Vue.component('home', {
   methods: {
     tapChute: function(): void {
       this.move('chute', 'grabs');
-      this.drag = null;
+      this.dragged = null;
     },
     move: function(from: string, to: string, n: number = 1): void {
-      for (const card of this.stacks[from].splice(0, n)) {
+      const removeds = this.stacks[from].splice(0, n)
+      for (const card of removeds.reverse()) {
         this.stacks[to].unshift(card);
         // Associate suit to goal index.
         if (begins(to, 'goal')) {
@@ -64,31 +67,31 @@ export default Vue.component('home', {
       }
     },
     select: function(stack: string): void {
-      if (!this.drag) {
+      if (!this.dragged) {
         // Flipping the top card in a lane.
         if (
           begins(stack, 'lane') &&
           this.laneFacedowns[stack] == this.stacks[stack].length
         ) {
           this.laneFacedowns[stack] = this.laneFacedowns[stack] - 1;
-          this.drag = null;
+          this.dragged = null;
           return;
         }
 
         if (this.stacks[stack].length > 0 && this.canMoveFrom(stack)) {
-          this.drag = stack;
+          this.dragged = {stack, i: 0};
         }
       } else {
-        if (this.canMoveTo(stack, this.stacks[this.drag][0], this.drag)) {
-          this.move(this.drag, stack);
+        if (this.canMoveTo(stack, this.stacks[this.dragged.stack][this.dragged.i], this.dragged)) {
+          this.move(this.dragged.stack, stack, this.dragged.i + 1);
         }
-        this.drag = null;
+        this.dragged = null;
       }
     },
     canMoveFrom: function(stack: string): boolean {
       return stack === 'grabs' || begins(stack, 'lane');
     },
-    canMoveTo: function(dest: string, card: Card, src: string) {
+    canMoveTo: function(dest: string, card: Card, src: StackPos) {
       return (
         // Empty goal stack.
         (begins(dest, 'goal') &&
@@ -104,9 +107,8 @@ export default Vue.component('home', {
               this.stacks[dest][0].rank == card.rank + 1)))
       );
     },
-    handleDrag: function(cardi: { card: Card; i: number }, stack: string) {
-      this.drag = null;
-      this.select(stack);
+    drag: function({card, i}: { card: Card; i: number }, stack: string) {
+      this.dragged = {stack, i}
     },
   }
 });

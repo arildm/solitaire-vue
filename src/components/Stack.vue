@@ -18,7 +18,7 @@ export default Vue.component('stack', {
   props: {
     cards: { type: Array, default: () => [] },
     facedown: Boolean,
-    draggable: {Boolean },
+    draggable: Boolean,
   },
   computed: {
     top: function() {
@@ -34,9 +34,6 @@ export default Vue.component('stack', {
   },
   methods: {
     cardStr,
-    handleDrop: function() {
-      console.log(arguments)
-    }
   }
 });
 </script>
