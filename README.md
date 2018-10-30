@@ -1,26 +1,10 @@
-# vsandbox
+# solitaire-vue
 
-## Project setup
+A solitaire I implemented as a practice project when learning [Vue](https://vuejs.org/).
+
+![Screenshot](solitaire-vue.png)
+
+## Installation
 ```
 yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
-
-### Compiles and minifies for production
-```
-yarn run build
-```
-
-### Run your tests
-```
-yarn run test
-```
-
-### Lints and fixes files
-```
-yarn run lint
 ```
