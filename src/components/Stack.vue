@@ -1,5 +1,5 @@
 <template>
-    <div :class="['stack', count, {facedown}]" @click="$emit('tap')" @dragover.prevent @drop="$emit('drop')">
+    <div :class="['stack', count, {facedown}]" @click="$emit('tap')" @dragover="$emit('dragover', $event)" @drop="$emit('drop')">
       <Card v-if="count != 'zero'" :card="top" :facedown="facedown" class="top"
         :draggable="draggable"
         @mydrag="$emit('mydrag', {card: $event, i: 0})"></Card>

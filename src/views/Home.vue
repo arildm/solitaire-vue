@@ -4,13 +4,13 @@
       <Stack :cards="stacks.chute" @tap="tapChute" facedown></Stack>
     </div>
     <div id="grabs">
-      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: dragged && dragged.stack == 'grabs'}" @mydrag="drag($event, 'grabs')" draggable></Stack>
+      <Stack :cards="stacks.grabs" @tap="select('grabs')" :class="{selected: dragged && dragged.stack == 'grabs'}" @mydrag="drag($event, 'grabs')" draggable @dragover="dragover($event, 'grabs')"></Stack>
     </div>
     <div id="goals">
-      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: dragged && dragged.stack == id}" @drop="select(id)"></Stack>
+      <Stack v-for="id of goalIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: dragged && dragged.stack == id}" @drop="select(id)" @dragover="dragover($event, id)"></Stack>
     </div>
     <div id="lanes">
-      <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: dragged && dragged.stack == id}" :facedowns="laneFacedowns[id]" @mydrag="drag($event, id)" @drop="select(id)"></Lane>
+      <Lane v-for="id of laneIds" :cards="stacks[id]" :key="id" @tap="select(id)" :class="{selected: dragged && dragged.stack == id}" :facedowns="laneFacedowns[id]" @mydrag="drag($event, id)" @drop="select(id)" @dragover="dragover($event, id)"></Lane>
     </div>
   </div>
 </template>
@@ -82,7 +82,7 @@ export default Vue.component('home', {
           this.dragged = {stack, i: 0};
         }
       } else {
-        if (this.canMoveTo(stack, this.stacks[this.dragged.stack][this.dragged.i], this.dragged)) {
+        if (this.canDrop(stack)) {
           this.move(this.dragged.stack, stack, this.dragged.i + 1);
         }
         this.dragged = null;
@@ -91,7 +91,13 @@ export default Vue.component('home', {
     canMoveFrom: function(stack: string): boolean {
       return stack === 'grabs' || begins(stack, 'lane');
     },
-    canMoveTo: function(dest: string, card: Card, src: StackPos) {
+    dragover(event, dest: string) {
+      if (this.canDrop(dest)) {
+        event.preventDefault()
+      }
+    },
+    canDrop: function(dest: string) {
+      const card = this.stacks[this.dragged.stack][this.dragged.i]
       return (
         // Empty goal stack.
         (begins(dest, 'goal') &&
